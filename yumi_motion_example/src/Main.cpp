@@ -58,15 +58,17 @@ int main(int argc, char **argv) {
 
 	armJointTrajectorysub = n.subscribe("/yumi/joint_states", 3, chatterCallback_state);
 
-	armJointTrajectoryPublisher = n.advertise<trajectory_msgs::JointTrajectory > ("/yumi/joint_trajectory_pos_controller/command", 1);
+	armJointTrajectoryPublisher = n.advertise<trajectory_msgs::JointTrajectory > ("/yumi/joint_trajectory_vel_controller/command", 1);
 
 
 	State_handle.resize(14);
 	State.resize(14);
+	desiredConfiguration.velocities.resize(JOINT_NUMBER);  //5 arm joints + 1 gripper joint
 	desiredConfiguration.positions.resize(JOINT_NUMBER);  //5 arm joints + 1 gripper joint
+	desiredConfiguration.accelerations.resize(JOINT_NUMBER);  //5 arm joints + 1 gripper joint
 	armCommand.joint_names.resize(JOINT_NUMBER);
 
-	ros::Rate rate(25); //Hz
+	ros::Rate rate(100); //Hz
 
 
 	while  (Joint_state_recived==false)
@@ -85,13 +87,18 @@ int main(int argc, char **argv) {
 		ros::spinOnce();
 		cout<<"-------"<<endl;
 		cout<<"ERROR OF State of the robot ";
-		cout<<" "<<(State_handle-State).norm()<<" ";
+		cout<<" ERROR "<<(State_handle-State).norm()<<" ";
 		for (int i=0;i<JOINT_NUMBER;i++)
 		{
-			desiredConfiguration.positions[i] =(joint_positions_down[i]- State_handle(i))/100+ State_handle(i);
+			desiredConfiguration.positions[i] =(joint_positions_down[i]- State(i))*0.1+State(i);
+	//		desiredConfiguration.positions[i] =State(i)-0.1;
+		//	desiredConfiguration.velocities[i] =(joint_positions_up[i]- State(i));
+	//		desiredConfiguration.positions[i] =joint_positions_down[i];
 			State_handle(i)=desiredConfiguration.positions[i];
 		//	desiredConfiguration.positions[i] = joint_positions_down[i];
 		}
+	//	desiredConfiguration.velocities[12] =(joint_positions_up[12]- State(12))/100;
+		//desiredConfiguration.velocities[13] =(joint_positions_up[13]- State(13))/100;
 		cout<<"-------"<<endl;
 		armCommand.header.stamp = ros::Time::now();
 		armCommand.header.frame_id = "yumi_body";
