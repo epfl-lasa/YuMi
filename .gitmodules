@@ -1,0 +1,9 @@
+[submodule "industrial_core"]
+	path = industrial_core
+	url = https://github.com/OrebroUniversity/industrial_core.git
+[submodule "abb"]
+	path = abb
+	url = https://github.com/ros-industrial/abb.git
+[submodule "yumi"]
+	path = yumi
+	url = https://github.com/kth-ros-pkg/yumi.git
